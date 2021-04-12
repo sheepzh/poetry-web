@@ -1,9 +1,7 @@
 from flask import Flask, jsonify, g, send_file, request
 import os
 from functools import reduce
-from poem import Poem
-from poet import Poet
-import pickle
+import json
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
@@ -59,7 +57,7 @@ def list_all_poets():
         poet_cache = {}
         for f in fs:
             file = open(os.path.join(root, f), 'rb')
-            poet = pickle.load(file)
+            poet = json.load(file)
             poet_cache[f] = poet
         g.poet_cache = poet_cache
         return poet_cache
@@ -100,7 +98,8 @@ def poets():
     for (k, v) in all_poets.items():
         print(k, word)
         if not word or word in k:
-            result.append({'name': v.n, 'pinyin': v.p, 'count': len(v.w)})
+            result.append(
+                {'name': v['n'], 'pinyin': v['p'], 'count': len(v['w'])})
     result = sorted(result, key=lambda p:  p['count'],  reverse=True)
     print(result)
     return jsonify(wrap_page(result, page_num, page_size))
@@ -134,12 +133,12 @@ def poems():
     else:
         poet_list = list(all_poets.values())
     for poet in poet_list:
-        for poem in poet.w:
-            title = poem.t
+        for poem in poet['w']:
+            title = poem['t']
             if title_wd and title_wd not in title:
                 continue
-            contents = poem.l
-            date = poem.d
+            contents = poem['l']
+            date = poem['d']
             if content_wd:
                 wd_appered = False
                 for line in contents:
@@ -150,7 +149,7 @@ def poems():
                     continue
             if index >= start_index and index < end_index:
                 pp = {
-                    'title': title, 'poet': poet.n, 'date': date, 'contents': contents}
+                    'title': title, 'poet': poet['n'], 'date': date, 'contents': contents}
                 list_.append(pp)
             index += 1
             if index >= end_index:

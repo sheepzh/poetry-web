@@ -1,8 +1,6 @@
 import sys
 import os
-import pickle
-from poem import Poem
-from poet import Poet
+import json
 
 if len(sys.argv) < 2:
     print('no origin data')
@@ -17,18 +15,20 @@ def parse_poem(poem_path):
         title = lines[0][6:]
         date = lines[1][5:]
         lines = lines[3:]
-        return Poem(title, date, lines)
+        return {'t': title, 'd': date, 'l': lines}
 
 
 def parse_poet(dir_name, root):
     try:
         split = dir_name.rindex('_')
-        poet = Poet(dir_name[:split], dir_name[split+1:])
+        poet = {'n': dir_name[:split], 'p': dir_name[split+1:]}
+        works = []
         for root, _, fs in os.walk(os.path.join(root, dir_name)):
             for f in fs:
                 if f.endswith('.pt'):
                     poem = parse_poem(os.path.join(root, f))
-                    poet.append_poem(poem)
+                    works.append(poem)
+        poet['w'] = works
         return poet
     except IOError:
         return None
@@ -43,5 +43,5 @@ for root, ds, _ in os.walk(origin_dir):
     for d in ds:
         poet = parse_poet(d, root)
         if poet:
-            with open(os.path.join('data', poet.n), 'wb') as file:
-                pickle.dump(poet, file)
+            with open(os.path.join('data', poet['n']), 'w') as file:
+                file.writelines(json.dumps(poet, ensure_ascii=False))
