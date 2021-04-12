@@ -1,0 +1,25 @@
+org: '1256916044'
+app: chinese-poetry
+stage: dev
+component: flask
+name: flask-oP0X2cRob
+inputs:
+  src:
+    hook: pip3 install -r requirements.txt -t ./
+    dist: ./
+    exclude:
+      - .env
+  region: ap-guangzhou
+  runtime: Python3.6
+  apigatewayConf:
+    protocols:
+      - http
+      - https
+    environment: release
+    serviceTimeout: 60
+    autoCreateDns: false
+  isAutoCiDeploy: false
+  functionConf:
+    eip: true
+    timeout: 3
+    memorySize: 128
