@@ -7,14 +7,26 @@
     <div style="margin-left: 40%; margin-top: 20px">
       <h3>{{poem['t']}}</h3>
       {% for line in poem['l'] %}
-      <p>{{line.replace(' ','&emsp;')}}</p>
+        {% if line %}
+          <p>{{ line.replace(' ','&emsp;') }}</p>
+        {% else %}
+          <p>&emsp;</p>
+        {% endif %}
       {% endfor %}
+      <div style="height:100px;padding-top: 40px;">
+        {% if poem['d'] %}
+          <a>@&emsp;{{poem['d']}}</a>
+        {% endif %}
+      </div>
     </div>
   </body>
   <style>
     p {
       margin: 4px 0;
-      font-size: 13px;
+      font-size: 14px;
+    }
+    a{
+      font-size: 11px;
     }
   </style>
 </html>
