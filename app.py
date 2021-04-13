@@ -170,6 +170,8 @@ def poems():
 def poems_by_poet(poet_name):
     all_poets = list_all_poets()
     if poet_name not in all_poets:
+        print(all_poets)
+        print(poet_name, 'not found')
         poems = []
     else:
         poems = all_poets[poet_name]['w']
