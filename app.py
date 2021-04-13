@@ -209,6 +209,8 @@ def poems_by_poet(poet_name):
 def poems_list(poet_name):
     all_poets = list_all_poets()
     if poet_name not in all_poets:
+        print(all_poets)
+        print(poet_name, 'not found')
         return '404'
 
     poems = all_poets[poet_name]['w']
