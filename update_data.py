@@ -44,4 +44,4 @@ for root, ds, _ in os.walk(origin_dir):
         poet = parse_poet(d, root)
         if poet:
             with open(os.path.join('data', poet['n']), 'w') as file:
-                file.writelines(json.dumps(poet, ensure_ascii=False))
+                file.writelines(json.dumps(poet))
