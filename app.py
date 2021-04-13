@@ -1,4 +1,4 @@
-#-*-coding:utf-8-*-
+# -*-coding:utf-8-*-
 from flask import Flask, jsonify, g, send_file, request, render_template
 import os
 from functools import reduce
@@ -52,10 +52,10 @@ def list_all_poets():
     for root, _, fs in os.walk('data'):
         poet_cache = {}
         for f in fs:
-            print(f)
             file = open(os.path.join(root, f), 'rb')
             poet = json.load(file)
-            poet_cache[f] = poet
+            # 中文文件名编码懒得调了
+            poet_cache[poet['n']] = poet
         g.poet_cache = poet_cache
         return poet_cache
 
@@ -172,7 +172,6 @@ def poems():
 def poems_by_poet(poet_name):
     all_poets = list_all_poets()
     if poet_name not in all_poets:
-        print(all_poets)
         print(poet_name, 'not found')
         poems = []
     else:
@@ -211,7 +210,6 @@ def poems_by_poet(poet_name):
 def poems_list(poet_name):
     all_poets = list_all_poets()
     if poet_name not in all_poets:
-        print(all_poets)
         print(poet_name, 'not found')
         return '404'
 
