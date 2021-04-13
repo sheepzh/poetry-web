@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{poem['t']}}-{{poet}} | 汉语现代诗歌库</title>
+  </head>
+  <body>
+    <div style="margin-left: 40%; margin-top: 20px">
+      <h3>{{poem['t']}}</h3>
+      {% for line in poem['l'] %}
+      <p>{{line.replace(' ','&emsp;')}}</p>
+      {% endfor %}
+    </div>
+  </body>
+  <style>
+    p {
+      margin: 4px 0;
+      font-size: 13px;
+    }
+  </style>
+</html>

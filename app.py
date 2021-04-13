@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, g, send_file, request
+from flask import Flask, jsonify, g, send_file, request, render_template
 import os
 from functools import reduce
 import json
@@ -26,11 +26,6 @@ def wrap_page(list_, page_num, page_size, need_total=True):
         page['total'] = total
 
     return page
-
-
-@app.route("/")
-def index():
-    return send_file("index.html")
 
 
 def get_poet_name_from_dir_name(d):
@@ -61,6 +56,22 @@ def list_all_poets():
             poet_cache[f] = poet
         g.poet_cache = poet_cache
         return poet_cache
+
+
+@app.route("/")
+def index():
+    total = 0
+    if 'poem_total' in g:
+        total = g.get('poem_total')
+    else:
+        all_poets = list_all_poets()
+        total = 0
+        for poet_name in all_poets:
+            poet = all_poets[poet_name]
+            total += len(poet['w'])
+        g.poem_total = total
+    return render_template("index.html", total=total)
+    # return send_file('templates/index.html')
 
 
 def get_page_args():
@@ -96,12 +107,10 @@ def poets():
     page_num, page_size = get_page_args()
     result = []
     for (k, v) in all_poets.items():
-        print(k, word)
         if not word or word in k:
             result.append(
                 {'name': v['n'], 'pinyin': v['p'], 'count': len(v['w'])})
     result = sorted(result, key=lambda p:  p['count'],  reverse=True)
-    print(result)
     return jsonify(wrap_page(result, page_num, page_size))
 
 
@@ -155,3 +164,70 @@ def poems():
             if index >= end_index:
                 return jsonify(wrap_page(list_, page_num, page_size, need_total=False))
     return jsonify(wrap_page(list_, page_num, page_size, need_total=False))
+
+
+@app.route('/poet/<poet_name>/poems')
+def poems_by_poet(poet_name):
+    all_poets = list_all_poets()
+    if poet_name not in all_poets:
+        poems = []
+    else:
+        poems = all_poets[poet_name]['w']
+    # 内容
+    content_wd = request.args.get('wd')
+    page_num, page_size = get_page_args()
+
+    list_ = []
+    max_line = 3
+    for poem in poems:
+        title = poem['t']
+        date = poem['d']
+        contents = poem['l']
+        pp = {'title': title, 'date': date}
+        lines = {}
+        if content_wd:
+            line_index = 0
+            for i in range(0, len(contents)):
+                if line_index == max_line:
+                    break
+                line = contents[i]
+                if content_wd in line:
+                    lines[str(i)] = line
+                    line_index += 1
+        else:
+            for i in range(0, min(max_line, len(contents))):
+                lines[str(i)] = contents[i]
+        if len(lines.keys()):
+            pp['lines'] = lines
+            list_.append(pp)
+    return jsonify(wrap_page(list_, page_num, page_size))
+
+
+@app.route('/poet/<poet_name>/list')
+def poems_list(poet_name):
+    all_poets = list_all_poets()
+    if poet_name not in all_poets:
+        return '404'
+
+    poems = all_poets[poet_name]['w']
+    poem_titles = list(map(lambda poem: poem['t'], poems))
+    poem_titles = sorted(poem_titles)
+    return render_template('list.html', list=poem_titles, poet=poet_name)
+
+
+@app.route('/poet/<poet_name>/poem/<poem_name>')
+def read_poem(poet_name, poem_name):
+    all_poets = list_all_poets()
+    if poet_name not in all_poets:
+        return '404'
+
+    poems = all_poets[poet_name]['w']
+    target_poem = None
+    for poem in poems:
+        if poem_name == poem['t']:
+            target_poem = poem
+            break
+    if not target_poem:
+        return '404'
+
+    return render_template('poem.html', poem=target_poem, poet=poet_name)

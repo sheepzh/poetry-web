@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chinese Poetry Library / 汉语现代诗歌库</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  </head>
+  <body style="margin-top: 20px; text-align: center">
+    <h2 style="margin-bottom: 60px">Chinese Poetry Library / 汉语现代诗歌库</h2>
+    <div class="box">
+      <div class="left-box">
+        <div style="width: 100%">
+          <input
+            class="key-input"
+            id="poet-input"
+            placeholder="Author's name/诗人名称"
+            style="width: 60%"
+          />
+          <button
+            class="search-button"
+            style="width: 35%"
+            onclick="queryPoet()"
+          >
+            Search/搜索
+          </button>
+        </div>
+        <div id="poet-list"></div>
+      </div>
+      <div class="right-box">
+        <div style="width: 100%; padding-left: 30%; text-align: left">
+          <input
+            class="key-input"
+            id="poet-name-input"
+            disabled
+            style="width: 70px; text-align: center"
+          />
+          <input
+            class="key-input poem-form"
+            id="poem-input"
+            placeholder="Keyword/关键词"
+            style="width: 240px"
+          />
+          <button
+            class="search-button poem-form"
+            style="width: 120px"
+            onclick="queryPoem()"
+          >
+            Search/搜索
+          </button>
+          &emsp;
+          <a onclick="lastPoemPage()" href="#"> &lt;&lt;</a>
+          &emsp;
+          <a id="poem-page-num">0/0</a>
+          &emsp;
+          <a onclick="nextPoemPage()" href="#">>></a>
+        </div>
+        <div id="poem-list" style="padding-left: 30%; margin-top: 20px"></div>
+      </div>
+    </div>
+    <br /><br /><br />
+    <a href="https://github.com/sheepzh/poetry" target="_blank">
+      Star me in Github, please! / 项目主页！
+    </a>
+    <br /><br />
+    <a
+      href="https://github.com/sheepzh/poetry/blob/master/doc/image/wepay_qrcode.jpeg?raw=true"
+      target="_blank"
+    >
+      Would u want to buy one cup of coffee for me? / 您愿意为我买一杯咖啡吗？
+    </a>
+    <br /><br />
+    <a
+      href="https://gitee.com/make-zero/poetry/repository/archive/master.zip"
+      target="_blank"
+    >
+      Download all the poems (total {{total}}) /
+      下载完整的诗歌数据(共{{total}}首)
+    </a>
+  </body>
+  <script>
+    $('.poem-form').attr('disabled', 'true')
+    let currentPoetName = undefined
+    let currentPoemPage = 1
+    let currentPoemTotalPage = 0
+    let lastPoemKeyword = undefined
+
+    function parseDate(date) {
+      if (date) {
+        switch (date.length) {
+          case 4:
+            return '&emsp;&emsp;@' + date
+          case 6:
+            return (
+              '&emsp;&emsp;@' + date.substring(0, 4) + ' / ' + date.substring(4)
+            )
+          case 8:
+            return (
+              '&emsp;&emsp;@' +
+              date.substring(0, 4) +
+              ' / ' +
+              date.substring(4, 6) +
+              ' / ' +
+              date.substring(6)
+            )
+          default:
+            return ''
+        }
+      } else {
+        return ''
+      }
+    }
+
+    function queryPoem(poetName) {
+      if (poetName) {
+        $('#poem-input').focus()
+        currentPoetName = poetName
+        currentPoemPage = 1
+        $('.poem-form').attr('disabled', false)
+        $('#poet-name-input').val(poetName)
+      }
+
+      const keyword = $('#poem-input').val()
+
+      if ((!lastPoemKeyword && keyword) || lastPoemKeyword != keyword) {
+        // to first page keyword changed
+        currentPoemPage = 1
+      }
+
+      if (!currentPoetName) {
+        $('#poem-list').html('')
+        return
+      }
+      let url = `/poet/${currentPoetName}/poems?ps=5&pn=${currentPoemPage}`
+      keyword && (url += '&wd=' + keyword)
+      $.ajax({
+        url,
+        success({ list, total }) {
+          lastPoemKeyword = keyword
+          const ulArr = list.map(({ title, date, lines }) => {
+            let lineP = ''
+            for (lineNum in lines) {
+              let lineStr = '' + lineNum
+              lineNum < 100 && (lineStr = '0' + lineStr)
+              lineNum < 10 && (lineStr = '0' + lineStr)
+              lineP += `
+              <p class="poem-line">
+                ${keyword ? `LINE#${lineStr}&emsp;` : ''}
+                ${lines[lineNum]}
+              </p>`
+            }
+
+            return `
+                <div class="poem-item">
+                  <p class="poem-header">
+                    <a class="poem-title" target="_blank" href="/poet/${currentPoetName}/poem/${title}">${title}</a>
+                    <a class="poem-date">${parseDate(date)}</a>
+                  </p>
+                    ${lineP}
+                </div>`
+          })
+          poemsDiv = ulArr.join('')
+          $('#poem-list').html(poemsDiv)
+
+          currentPoemTotalPage = Math.ceil(total / 5)
+          $('#poem-page-num').html(`${currentPoemPage}/${currentPoemTotalPage}`)
+        }
+      })
+    }
+
+    function queryPoet() {
+      const keyword = $('#poet-input').val()
+      let url = '/poets?ps=15'
+      keyword && (url += '&wd=' + keyword)
+      $.ajax({
+        url,
+        success({ list, total }) {
+          if (list) {
+            const ulArr = list.map(
+              ({ name, count }) =>
+                `
+                <div class="poet-item">
+                  <span class="poet-name">${name}</span>
+                  <span class="poet-count">
+                    ${count}&emsp;
+                    <a href="/poet/${name}/list" target="_blank" style="font-size:11px">目录</a>
+                    <a href="#" onclick="queryPoem('${name}', true)" style="font-size:11px">搜索 </a>
+                  </span>
+                </div>`
+            )
+            ulStr =
+              ulArr.join('') +
+              `<div style="text-align:center;width:100%;padding-top:10px">Total: ${total} authors</div>`
+            $('#poet-list').html(ulStr)
+          }
+        }
+      })
+    }
+
+    function nextPoemPage() {
+      if (currentPoemPage < currentPoemTotalPage) currentPoemPage++
+      queryPoem()
+    }
+
+    function lastPoemPage() {
+      if (currentPoemPage > 1) currentPoemPage--
+      queryPoem()
+    }
+
+    queryPoet()
+  </script>
+  <style>
+    .box {
+      margin: 30px;
+      width: 100%;
+      height: 500px;
+    }
+    .left-box,
+    .right-box {
+      height: 100%;
+      float: left;
+    }
+    .left-box {
+      width: 15%;
+    }
+    .right-box {
+      width: 85%;
+    }
+    #poet-list {
+      height: 440px;
+    }
+    .poet-item {
+      width: 100%;
+      height: 24px;
+      line-height: 24px;
+      margin: 4px 20px;
+    }
+    .poet-name {
+      float: left;
+    }
+    .poet-count {
+      float: right;
+      margin-right: 40px;
+    }
+    .key-input {
+      line-height: 25px;
+    }
+    .search-button {
+      height: 31px;
+    }
+    .poem-item {
+      /* height: 90px; */
+      text-align: left;
+    }
+    .poem-header {
+      margin-bottom: 2px;
+      margin-top: 10px;
+    }
+    .poem-title {
+      font-size: 14px;
+    }
+    .poem-date {
+      font-size: 12px;
+    }
+    .poem-line {
+      line-height: 16px;
+      font-size: 12px;
+      margin-top: 2px;
+      margin-bottom: 0;
+    }
+  </style>
+</html>
