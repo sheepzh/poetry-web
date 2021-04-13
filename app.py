@@ -1,3 +1,4 @@
+#-*-coding:utf-8-*-
 from flask import Flask, jsonify, g, send_file, request, render_template
 import os
 from functools import reduce
@@ -51,6 +52,7 @@ def list_all_poets():
     for root, _, fs in os.walk('data'):
         poet_cache = {}
         for f in fs:
+            print(f)
             file = open(os.path.join(root, f), 'rb')
             poet = json.load(file)
             poet_cache[f] = poet
