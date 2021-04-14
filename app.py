@@ -1,5 +1,5 @@
 # -*-coding:utf-8-*-
-from flask import Flask, jsonify, g, send_file, request, render_template
+from flask import Flask, jsonify, g, send_file, request, render_template, redirect
 import os
 from functools import reduce
 import json
@@ -232,6 +232,6 @@ def read_poem(poet_name, poem_name):
             target_poem = poem
             break
     if not target_poem:
-        return '404'
+        return redirect('/poet/{}/poem/list'.format(poet_name))
 
     return render_template('poem.html', poem=target_poem, poet=poet_name)
