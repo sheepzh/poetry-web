@@ -206,6 +206,11 @@ def poems_by_poet(poet_name):
     return jsonify(wrap_page(list_, page_num, page_size))
 
 
+@app.route('/poet/<poet_name>')
+def poem_index(poet_name):
+    return redirect('/poet/{}/list'.format(poet_name))
+
+
 @app.route('/poet/<poet_name>/list')
 def poems_list(poet_name):
     all_poets = list_all_poets()
@@ -232,6 +237,6 @@ def read_poem(poet_name, poem_name):
             target_poem = poem
             break
     if not target_poem:
-        return redirect('/poet/{}/poem/list'.format(poet_name))
+        return redirect('/poet/{}/list'.format(poet_name))
 
     return render_template('poem.html', poem=target_poem, poet=poet_name)
