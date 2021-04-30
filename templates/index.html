@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Chinese Poetry Library / 汉语现代诗歌库</title>
+    <title>The Corpus of Chinese Poetry / 汉诗语料库</title>
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   </head>
   <body style="margin-top: 20px; text-align: center">
-    <h2 style="margin-bottom: 60px">Chinese Poetry Library / 汉语现代诗歌库</h2>
+    <h2 style="margin-bottom: 60px">The Corpus of Chinese Poetry / 汉诗语料库</h2>
     <div class="box">
       <div class="left-box">
         <div style="width: 100%">
@@ -14,6 +14,7 @@
             id="poet-input"
             placeholder="Author's name/诗人名称"
             style="width: 60%"
+            onkeyup="keyOnPoetInput(event)"
           />
           <button
             class="search-button"
@@ -82,6 +83,13 @@
     let currentPoemPage = 1
     let currentPoemTotalPage = 0
     let lastPoemKeyword = undefined
+
+    function keyOnPoetInput(event) {
+      event = event || window.event
+      if (event.code === 'Enter') {
+        queryPoet()
+      }
+    }
 
     function parseDate(date) {
       if (date) {
@@ -188,7 +196,13 @@
             )
             ulStr =
               ulArr.join('') +
-              `<div style="text-align:center;width:100%;padding-top:10px">Total: ${total} authors</div>`
+              `
+                <div style="text-align:center;width:100%;padding-top:10px">
+                  Total: ${total} authors searched.
+                </div>
+                <div style="margin-top:10px">
+                  <a href="/poet_list" target="_blank">All authors</a>
+                </div>`
             $('#poet-list').html(ulStr)
           }
         }

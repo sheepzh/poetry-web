@@ -116,6 +116,25 @@ def poets():
     return jsonify(wrap_page(result, page_num, page_size))
 
 
+@app.route('/poet_list')
+def all_list():
+    poets = list_all_poets()
+    poet_groups = {}
+    for index in range(0, 26):
+        key = chr(ord('A')+index)
+        poet_groups[key] = []
+    poet_groups['#'] = []
+    for name in poets:
+        pinyin = poets[name]['p']
+        first_char = pinyin[0]
+        if(first_char.isalpha()):
+            poet_groups[first_char.upper()].append(name)
+        else:
+            poet_groups['#'].append(name)
+
+    return render_template('/poem_list.html', poets=poet_groups)
+
+
 @app.route('/poems')
 def poems():
     # 精确查询
@@ -221,7 +240,7 @@ def poems_list(poet_name):
     poems = all_poets[poet_name]['w']
     poem_titles = list(map(lambda poem: poem['t'], poems))
     poem_titles = sorted(poem_titles)
-    return render_template('list.html', list=poem_titles, poet=poet_name)
+    return render_template('list.html', list=poem_titles, poet=poet_name, count=len(poem_titles))
 
 
 @app.route('/poet/<poet_name>/poem/<poem_name>')
