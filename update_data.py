@@ -37,6 +37,12 @@ def parse_poet(dir_name, root):
 if not os.path.exists('data'):
     os.makedirs('data')
 
+# Delete previous data
+for f in os.listdir('data'):
+    file_path = os.path.join('data', f)
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+
 poets = []
 
 for root, ds, _ in os.walk(origin_dir):
