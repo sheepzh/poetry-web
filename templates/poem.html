@@ -14,8 +14,9 @@
         {% endif %}
       {% endfor %}
       <div style="height:100px;padding-top: 40px;">
+        <a href="/poet/{{poet}}" target="_blank">@{{poet}}</a>
         {% if poem['d'] %}
-          <a>@&emsp;{{poem['d']}}</a>
+          <a>&emsp;{{poem['d']}}</a>
         {% endif %}
       </div>
     </div>
