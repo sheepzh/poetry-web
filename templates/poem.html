@@ -6,27 +6,30 @@
   <body>
     <div style="margin-left: 40%; margin-top: 20px">
       <h3>{{poem['t']}}</h3>
-      {% for line in poem['l'] %}
-        {% if line %}
-          <p>{{ line.replace(' ','&emsp;') }}</p>
-        {% else %}
-          <p>&emsp;</p>
-        {% endif %}
-      {% endfor %}
-      <div style="height:100px;padding-top: 40px;">
+      {% for line in poem['l'] %} {% if line %}
+      <p>{{ line.replace(' ','&emsp;') }}</p>
+      {% else %}
+      <p>&emsp;</p>
+      {% endif %} {% endfor %}
+      <div style="height: 100px; padding-top: 40px">
         <a href="/poet/{{poet}}" target="_blank">@{{poet}}</a>
         {% if poem['d'] %}
-          <a>&emsp;{{poem['d']}}</a>
+        <a>&emsp;{{poem['d']}}</a>
         {% endif %}
       </div>
     </div>
+    <img
+      style="display: none"
+      src="https://visitor-badge.laobi.icu/badge?page_id=github_sheepzh_poetry"
+      alt="visitor badge"
+    />
   </body>
   <style>
     p {
       margin: 4px 0;
       font-size: 14px;
     }
-    a{
+    a {
       font-size: 11px;
     }
   </style>
